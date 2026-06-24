@@ -3,7 +3,7 @@ import { useState } from "react";
 function App() {
   // 1. Dynamic Form States
   const [startDate, setStartDate] = useState("2015-01-01");
-  const [endDate, setEndDate] = useState("2020-12-31");
+  const [endDate, setEndDate] = useState("2024-05-31");
   const [simulations, setSimulations] = useState(100000);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -172,24 +172,35 @@ function App() {
             </div>
 
             {/* Predictions Content Block */}
+           {/* Predictions Content Block */}
             <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "1.5rem" }}>
-              <h2 style={{ fontSize: "1.3rem", color: "#f1f5f9", margin: "0 0 1rem 0", fontWeight: "600", borderBottom: "1px solid #334155", paddingBottom: "0.5rem" }}>
-                Target Projections
+              <h2 style={{ fontSize: "1.3rem", color: "#f1f5f9", margin: "0 0 1.25rem 0", fontWeight: "600", borderBottom: "1px solid #334155", paddingBottom: "0.5rem" }}>
+                Target Projections ({result.prediction?.station_analyzed} - {result.prediction?.pollutant_target})
               </h2>
-              <pre style={{ 
-                backgroundColor: "#0f172a", 
-                padding: "1rem", 
-                borderRadius: "6px", 
-                overflowX: "auto", 
-                color: "#38bdf8",
-                fontSize: "0.95rem",
-                fontFamily: 'Consolas, Monaco, "Andale Mono", monospace',
-                margin: 0
-              }}>
-                {JSON.stringify(result.prediction, null, 2)}
-              </pre>
-            </div>
+              
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem" }}>
+                <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                  <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>EXPECTED MEAN</span>
+                  <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#38bdf8", marginTop: "0.25rem" }}>
+                    {result.prediction?.expected_mean} ug/m³
+                  </div>
+                </div>
 
+                <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                  <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>PERCENTILE 95 (p95)</span>
+                  <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#fbbf24", marginTop: "0.25rem" }}>
+                    {result.prediction?.max_bounds} ug/m³
+                  </div>
+                </div>
+
+                <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                  <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>HISTORIC DATA POINTS</span>
+                  <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#a78bfa", marginTop: "0.25rem" }}>
+                    {result.prediction?.total_records_filtered}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
