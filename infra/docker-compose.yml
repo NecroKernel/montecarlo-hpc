@@ -11,14 +11,13 @@ services:
     volumes:
       - ../data:/app/data
 
-frontend:
+  frontend:
 
-    build:
+      build:
+        context: ../apps/frontend
 
-      context: ../apps/frontend
+      ports:
+        - "3000:5173"  
 
-    ports:
-      - "3000:5173"  
-
-    depends_on:
-      - backend
+      depends_on:
+        - backend
