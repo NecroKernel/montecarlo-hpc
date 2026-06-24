@@ -20,4 +20,4 @@ services:
         - "3000:4173"  
 
       depends_on:
-        - backendAAA
+        - backend
