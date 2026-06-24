@@ -1,122 +1,37 @@
-# 🌫️ Simulación de Montecarlo para Análisis de Calidad del Aire en Lima — HPC
+# Monte Carlo HPC Simulator ⚡
 
-> **Curso:** Computación de Alto Desempeño y Cloud Computing — 2026-I  
-> **Universidad:** Universidad del Pacífico  
-> **Docente:** MSc Juan Carlos Tovar Galarreta  
+Un motor de simulación de alto rendimiento (HPC) basado en el método de Monte Carlo para proyectar la dispersión de contaminantes (`PM10`) en Lima (Estación: Campo de Marte). El proyecto compara directamente los tiempos de ejecución entre procesamiento secuencial y paralelo explotando al máximo los núcleos de la CPU en entornos distribuidos de nube (Azure).
 
----
+## 📂 Estructura del Repositorio
 
-## 👥 Integrantes
+El proyecto está organizado de la siguiente manera basado en una arquitectura orientada a microservicios:
 
-| Nombre completo | Rol en el proyecto |
-|---|---|
-| Apellido, Nombre 1 | Introducción y contexto |
-| Apellido, Nombre 2 | Estado del arte |
-| Apellido, Nombre 3 | Dataset y exploración |
-| Scarpati, Gianfranco | Metodología y arquitectura |
-
----
-
-## 📌 Descripción del Proyecto
-
-Este proyecto aplica **simulación de Montecarlo paralelizada** para analizar los niveles de contaminantes del aire en Lima Metropolitana. Mediante técnicas de **Computación de Alto Desempeño (HPC)** y **Cloud Computing**, se busca reducir el tiempo de simulación y modelar distribuciones de probabilidad de concentraciones de contaminantes como PM2.5, PM10, NO₂ y O₃.
-
-El dataset utilizado proviene del Servicio Nacional de Meteorología e Hidrología del Perú (SENAMHI), disponible en la Plataforma Nacional de Datos Abiertos.
-
----
-
-## 🗂️ Estructura del Repositorio
-
-```
-proyecto-montecarlo-hpc/
-│
-├── README.md                        ← Este archivo
-├── LICENSE                          ← Licencia MIT
-│
-├── data/
-│   └── README.md                    ← Instrucciones para descargar el dataset
-│
-├── notebooks/
-│   └── avance_parcial.ipynb         ← Cuadernillo principal (carga → limpieza → simulación)
-│
-├── src/                             ← Scripts Python modulares (informe final)
-│   ├── preprocessing.py
-│   └── montecarlo.py
-│
-└── informe/
-    ├── informe_parcial.tex          ← Fuente LaTeX
-    └── informe_parcial.pdf          ← PDF compilado para entrega
-```
-
----
-
-## 📊 Dataset
-
-**Nombre:** Datos Horarios de Contaminantes del Aire en Lima Metropolitana  
-**Fuente:** SENAMHI / Plataforma Nacional de Datos Abiertos del Perú  
-**URL:** https://www.datosabiertos.gob.pe/dataset/datos-horarios-de-contanimantes-del-aire-en-limametropolitana-servicio-nacional-de  
-**Registros:** > 30,000 observaciones horarias  
-**Variables principales:** fecha_hora, estacion, PM2.5, PM10, NO₂, O₃, CO, SO₂, temperatura, humedad  
-
-> ⚠️ El archivo de datos no está incluido en este repositorio por su tamaño.  
-> Descárgalo desde la URL de arriba y colócalo en la carpeta `data/`.
-
----
-
-## 🚀 Cómo ejecutar el proyecto
-
-### 1. Clonar el repositorio
-```bash
-git clone https://github.com/[USUARIO]/proyecto-montecarlo-hpc.git
-cd proyecto-montecarlo-hpc
-```
-
-### 2. Instalar dependencias
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Descargar el dataset
-Descarga el dataset desde la URL indicada arriba y guárdalo como:
-```
-data/contaminantes_lima.csv
-```
-
-### 4. Ejecutar el cuadernillo
-Abre el cuadernillo en Jupyter o Google Colab:
-```bash
-jupyter notebook notebooks/avance_parcial.ipynb
-```
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-| Herramienta | Uso |
-|---|---|
-| Python 3.10+ | Lenguaje principal |
-| Pandas | Carga y limpieza de datos |
-| NumPy | Operaciones numéricas y muestreo |
-| Dask / multiprocessing | Paralelización de simulaciones |
-| Matplotlib / Seaborn | Visualización |
-| Google Colab / [Cloud] | Entorno de ejecución en la nube |
-| LaTeX (Overleaf) | Redacción del informe |
-
----
-
-## 📈 Métricas de rendimiento evaluadas
-
-- **Speedup** (S_p = T_1 / T_p)
-- **Eficiencia** (E = S_p / p)
-- **Escalabilidad** según número de núcleos y tamaño del problema
-
----
-
-
-## 📚 Referencias
-
-Las referencias completas están en el informe (`informe/informe_parcial.pdf`).  
-Papers principales consultados:
-- [Referencia 1 — completar]
-- [Referencia 2 — completar]
-- [Referencia 3 — completar]
+```text
+├── apps
+│   ├── backend
+│   │   ├── app
+│   │   │   └── api
+│   │   │       └── main.py          # Endpoints de FastAPI y lógica de orquestación
+│   │   ├── montecarlo
+│   │   │   ├── core.py             # Motor matemático base del simulador
+│   │   │   ├── metrics.py          # Cálculo de velocidad de procesamiento y speedup
+│   │   │   ├── parallel.py         # Orquestación con multiprocessing (Pool mapping)
+│   │   │   ├── preprocessing.py    # Transformaciones y pipelines de datos de entrada
+│   │   │   └── sequential.py       # Procesamiento lineal en un único hilo
+│   │   ├── Dockerfile
+│   │   └── requirements.txt        # Dependencias backend (FastAPI, NumPy, Uvicorn)
+│   └── frontend
+│       ├── src
+│       │   ├── App.jsx             # Panel Dashboard interactivo (Dark Theme) con selector de fechas
+│       │   └── main.jsx            # Punto de entrada de la aplicación React 18
+│       ├── Dockerfile
+│       ├── package.json            # Configuración de dependencias (Vite 5, React)
+│       └── vite.config.js          # Configuración del servidor de desarrollo/preview y plugins
+├── data
+│   └── contaminantes_lima.csv      # Dataset histórico de entrada para calibrar la simulación
+├── experiments                     # Cuadernos de Jupyter con análisis estadísticos previos
+│   ├── montecarlo_secuencial.ipynb
+│   └── montecarlo_secuencial_vs_paralelo.ipynb
+└── infra
+    ├── docker-compose.yml          # Orquestación global de contenedores en red interna
+    └── nginx                       # Configuración opcional para proxy inverso
