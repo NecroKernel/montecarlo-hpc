@@ -9,8 +9,8 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  // Target your working Azure Public IP
-  const BACKEND_URL = "http://20.114.170.13:8000/run-comparison";
+  // URL del backend: configurable vía VITE_BACKEND_URL, con fallback a localhost
+  const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || "http://localhost:8000") + "/run-comparison";
 
   async function execute(e) {
     e.preventDefault(); // Prevent page refresh on form submit
@@ -184,12 +184,19 @@ function App() {
                   </div>
                 </div>
 
-                <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
-                  <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>PERCENTILE 95 (p95)</span>
-                  <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#fbbf24", marginTop: "0.25rem" }}>
-                    {result.prediction?.p95_value} ug/m³
+                  <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                    <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>PERCENTILE 95 (p95)</span>
+                    <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#fbbf24", marginTop: "0.25rem" }}>
+                      {result.prediction?.p95} ug/m³
+                    </div>
                   </div>
-                </div>
+
+                  <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                    <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>RIESGO P( &gt; 100 ug/m³ )</span>
+                    <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#f87171", marginTop: "0.25rem" }}>
+                      {result.prediction?.prob_exceed_100}%
+                    </div>
+                  </div>
 
                 <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
                   <span style={{ color: "#94a3b8", fontSize: "0.85rem", fontWeight: "600" }}>WORST CASE (MAX)</span>

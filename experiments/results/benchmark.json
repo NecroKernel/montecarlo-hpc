@@ -1,0 +1,34 @@
+{
+  "config": {
+    "iteraciones": 2000000,
+    "puntos": 1000,
+    "cpu_cores": 8,
+    "tiempo_secuencial_seg": 50.4448
+  },
+  "resultados": [
+    {
+      "procesos": 1,
+      "tiempo_seg": 51.0387,
+      "speedup": 0.988,
+      "eficiencia": 0.988
+    },
+    {
+      "procesos": 2,
+      "tiempo_seg": 30.0624,
+      "speedup": 1.678,
+      "eficiencia": 0.839
+    },
+    {
+      "procesos": 4,
+      "tiempo_seg": 19.2743,
+      "speedup": 2.617,
+      "eficiencia": 0.654
+    },
+    {
+      "procesos": 8,
+      "tiempo_seg": 16.1722,
+      "speedup": 3.119,
+      "eficiencia": 0.39
+    }
+  ]
+}

@@ -1,37 +1,39 @@
 import numpy as np
+
 from multiprocessing import Pool, cpu_count
 
-def batch_worker(args):
+from .core import simulate_batch, summarize
+
+
+def worker(task):
+    """Cada worker genera un LOTE completo de simulaciones, no una sola.
+
+    El array `values` se serializa (pickle) una vez por proceso —no una vez
+    por simulación— y el muestreo se hace vectorizado. Esto elimina el cuello
+    de botella de comunicación (IPC) que hacía que la versión anterior fuera
+    más lenta que la secuencial.
     """
-    Cada worker recibe el array completo UNA SOLA VEZ 
-    y ejecuta su propio lote de simulaciones internamente.
-    """
-    values, batch_size = args
-    # Cada worker genera todo su lote internamente de golpe
-    return np.random.choice(values, size=batch_size).tolist()
+    values, n = task
+    return simulate_batch(values, n)
+
+
+def _split(total, parts):
+    """Reparte `total` simulaciones en `parts` lotes lo más balanceados posible."""
+    base, rem = divmod(total, parts)
+    sizes = [base + (1 if i < rem else 0) for i in range(parts)]
+    return [s for s in sizes if s > 0]
+
 
 def run_parallel(values, simulations):
-    num_cores = cpu_count()
-    
-    # Dividimos equitativamente las simulaciones entre los cores disponibles
-    base_batch = simulations // num_cores
-    remainder = simulations % num_cores
-    
-    # Crear los tamaños de lote para cada proceso
-    batches = [base_batch + (1 if i < remainder else 0) for i in range(num_cores)]
-    
-    # Empaquetamos los argumentos para cada worker (solo pasamos el array num_cores veces)
-    worker_args = [(values, batch_size) for batch_size in batches if batch_size > 0]
-    
-    with Pool(num_cores) as pool:
-        # pool.map ahora solo maneja una lista del tamaño de tus cores (ej. 4 o 8 elementos)
-        chunk_results = pool.map(batch_worker, worker_args)
-    
-    # Aplanamos la lista de listas en un solo array plano de resultados
-    results = np.concatenate(chunk_results)
-    
-    return {
-        "mean": float(np.mean(results)),
-        "p95": float(np.percentile(results, 95)),
-        "max": float(np.max(results))
-    }
+    n_workers = cpu_count()
+    chunks = _split(simulations, n_workers)
+
+    with Pool(len(chunks)) as pool:
+        parts = pool.map(
+            worker,
+            [(values, n) for n in chunks]
+        )
+
+    results = np.concatenate(parts)
+
+    return summarize(results)
