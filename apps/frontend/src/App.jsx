@@ -165,7 +165,15 @@ function App() {
                   <div style={{ fontSize: "2.25rem", fontWeight: "800", color: "#38bdf8", margin: "0.25rem 0" }}>
                     {result.performance?.speedup_factor || result.performance?.speedup || "N/A"}x
                   </div>
-                  <span style={{ fontSize: "0.8rem", color: "#7dd3fc" }}>Reduction in execution</span>
+                  <span style={{ fontSize: "0.8rem", color: "#7dd3fc" }}>Reduction in execution time using parallel vs serial</span>
+                </div>
+
+                <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", padding: "1.25rem", borderRadius: "8px" }}>
+                  <span style={{ fontSize: "0.75rem", color: "#a855f7", fontWeight: "700", letterSpacing: "0.05em" }}>CORE EFFICIENCY</span>
+                  <div style={{ fontSize: "2rem", fontWeight: "800", color: "#c084fc", margin: "0.5rem 0" }}>
+                    {result.performance ? `${(((result.performance?.speedup_factor || result.performance?.speedup || 0) / 2) * 100).toFixed(1)}%` : "N/A"}
+                  </div>
+                  <small style={{ color: "#64748b" }}>Dual-core hardware utilization in VM</small>
                 </div>
 
               </div>
