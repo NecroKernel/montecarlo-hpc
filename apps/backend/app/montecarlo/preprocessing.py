@@ -1,6 +1,6 @@
 import pandas as pd
 
-DATA_PATH = "/app/data/contaminantes_lima.csv"
+DATA_PATH = "../app/data/contaminantes_lima.csv"
 
 def get_filtered_values(
     station,

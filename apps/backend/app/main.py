@@ -74,8 +74,8 @@ def run_comparison(request: SimulationRequest):
         return {
             "prediction": {
                 "expected_mean": round(float(parallel_results.get("mean", 0)), 2),
-                "min_bounds": round(float(parallel_results.get("max", 0)), 2), # O el percentil/mínimo que desees mapear
-                "max_bounds": round(float(parallel_results.get("p95", 0)), 2),
+                "max_value": round(float(parallel_results.get("max", 0)), 2),      # Corregido de min_bounds a max_value
+                "p95_value": round(float(parallel_results.get("p95", 0)), 2),      # Nombre claro
                 "station_analyzed": request.station,
                 "pollutant_target": request.pollutant,
                 "total_records_filtered": len(values)
