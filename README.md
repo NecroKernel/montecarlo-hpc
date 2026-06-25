@@ -1,37 +1,41 @@
-# Monte Carlo HPC Simulator ⚡
+# Monte Carlo HPC Simulator: Quality Air Data Pipeline & Analytics
 
-Un motor de simulación de alto rendimiento (HPC) basado en el método de Monte Carlo para proyectar la dispersión de contaminantes (`PM10`) en Lima (Estación: Campo de Marte). El proyecto compara directamente los tiempos de ejecución entre procesamiento secuencial y paralelo explotando al máximo los núcleos de la CPU en entornos distribuidos de nube (Azure).
+Este proyecto es una plataforma de analítica avanzada y computación de alto rendimiento (HPC) que implementa simulaciones estocásticas de Monte Carlo para proyectar el comportamiento y mitigar riesgos asociados a la contaminación del aire ($PM_{10}$) en Lima Metropolitana, utilizando datos históricos oficiales del SENAMHI.
 
-## 📂 Estructura del Repositorio
+La arquitectura está diseñada bajo principios de desacoplamiento de componentes, procesamiento en paralelo vectorizado para exprimir el hardware en la nube y despliegue automatizado mediante contenedores Docker sobre infraestructura Microsoft Azure.
 
-El proyecto está organizado de la siguiente manera basado en una arquitectura orientada a microservicios:
+---
+
+## 📁 Estructura Completa del Proyecto
+
+El repositorio está organizado siguiendo patrones de diseño modulares para separar de forma estricta la lógica del cliente web, las operaciones del servidor de cómputo y los archivos de configuración de infraestructura:
 
 ```text
-├── apps
-│   ├── backend
-│   │   ├── app
-│   │   │   └── api
-│   │   │       └── main.py          # Endpoints de FastAPI y lógica de orquestación
-│   │   ├── montecarlo
-│   │   │   ├── core.py             # Motor matemático base del simulador
-│   │   │   ├── metrics.py          # Cálculo de velocidad de procesamiento y speedup
-│   │   │   ├── parallel.py         # Orquestación con multiprocessing (Pool mapping)
-│   │   │   ├── preprocessing.py    # Transformaciones y pipelines de datos de entrada
-│   │   │   └── sequential.py       # Procesamiento lineal en un único hilo
-│   │   ├── Dockerfile
-│   │   └── requirements.txt        # Dependencias backend (FastAPI, NumPy, Uvicorn)
-│   └── frontend
-│       ├── src
-│       │   ├── App.jsx             # Panel Dashboard interactivo (Dark Theme) con selector de fechas
-│       │   └── main.jsx            # Punto de entrada de la aplicación React 18
-│       ├── Dockerfile
-│       ├── package.json            # Configuración de dependencias (Vite 5, React)
-│       └── vite.config.js          # Configuración del servidor de desarrollo/preview y plugins
-├── data
-│   └── contaminantes_lima.csv      # Dataset histórico de entrada para calibrar la simulación
-├── experiments                     # Cuadernos de Jupyter con análisis estadísticos previos
-│   ├── montecarlo_secuencial.ipynb
-│   └── montecarlo_secuencial_vs_paralelo.ipynb
-└── infra
-    ├── docker-compose.yml          # Orquestación global de contenedores en red interna
-    └── nginx                       # Configuración opcional para proxy inverso
+montecarlo-hpc/
+├── backend/                  # Servidor de Cómputo (FastAPI)
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py          # Definición de Endpoints de FastAPI (/run-comparison)
+│   │   ├── core.py          # Lógica base de la simulación matemática
+│   │   └── montecarlo/
+│   │       ├── __init__.py
+│   │       ├── preprocessing.py # Ingesta y filtrado temporal de series históricas
+│   │       ├── sequential.py    # Algoritmo secuencial con Dynamic Mini-Batching
+│   │       ├── parallel.py      # Algoritmo paralelo vectorizado distribuido
+│   │       └── metrics.py       # Wrapper de benchmark de tiempo de ejecución
+│   ├── data/
+│   │   └── contaminantes_lima.csv  # Series temporales históricas de SENAMHI
+│   ├── Dockerfile            # Configuración de compilación para el Backend
+│   └── requirements.txt      # Dependencias core de Python (FastAPI, NumPy, Pandas)
+├── frontend/                 # Aplicación Web (React.js)
+│   ├── src/
+│   │   ├── components/      # Componentes UI (Formularios, Tarjetas de Métricas)
+│   │   ├── App.jsx          # Componente principal y gestión de estado
+│   │   └── main.jsx
+│   ├── package.json          # Dependencias y scripts de Node.js
+│   └── Dockerfile            # Configuración de compilación para el Frontend
+└── infra/                    # Capa de Orquestación y Despliegue
+    ├── .env                  # Variables de entorno (Puertos, IPs)
+    └── docker-compose.yml    # Manifiesto multiservicio de producción
+
+
