@@ -1,38 +1,47 @@
-import pandas as pd
+import numpy as np
+from multiprocessing import Pool, cpu_count
 
-DATA_PATH = "../app/data/contaminantes_lima.csv"
+from .core import simulate
 
-def get_filtered_values(
-    station,
-    pollutant,
-    start_date,
-    end_date
-):
+def worker(args):
+    values, batch_size = args
 
-    df = pd.read_csv(DATA_PATH)
+    local_results = []
 
-    df["FECHA"] = pd.to_datetime(
-        df["FECHA"].astype(str),
-        format="%Y%m%d"
-    )
+    for _ in range(batch_size):
+        local_results.append(
+            simulate(values)
+        )
 
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
+    return local_results
 
-    filtered = df[
-        (df["ESTACION"] == station)
-        & (df["FECHA"] >= start_date)
-        & (df["FECHA"] <= end_date)
+def run_parallel(values, simulations):
+
+    cores = cpu_count()
+
+    base = simulations // cores
+    remainder = simulations % cores
+
+    batches = [
+        base + (1 if i < remainder else 0)
+        for i in range(cores)
     ]
 
-    values = (
-        filtered[pollutant]
-        .dropna()
-        .astype(float)
-        .values
-    )
+    worker_args = [
+        (values, batch)
+        for batch in batches
+    ]
 
-    if len(values) == 0:
-        raise ValueError("No hay datos para los filtros seleccionados")
+    with Pool(cores) as pool:
+        chunks = pool.map(
+            worker,
+            worker_args
+        )
 
-    return values
+    results = np.concatenate(chunks)
+
+    return {
+        "mean": float(np.mean(results)),
+        "p95": float(np.percentile(results, 95)),
+        "max": float(np.max(results))
+    }
