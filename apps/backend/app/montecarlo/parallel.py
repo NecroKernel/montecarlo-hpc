@@ -1,20 +1,14 @@
 import numpy as np
 from multiprocessing import Pool, cpu_count
-from .core import simulate
 
 def worker(args):
     values, batch_size = args
-    
-    # 🚨 OPTIMIZACIÓN 1: Preasignamos un array de NumPy en lugar de usar .append() lento
-    local_results = np.empty(batch_size, dtype=np.float64)
-    
-    for i in range(batch_size):
-        local_results[i] = simulate(values)
-        
-    return local_results # NumPy serializa muchísimo más rápido que las listas nativas
+    # Cada core genera su matriz local de un solo golpe en C
+    matrix = np.random.choice(values, size=(batch_size, 1000), replace=True)
+    return np.mean(matrix, axis=1)
 
 def run_parallel(values, simulations):
-    cores = cpu_count() # Detectará tus 2 vCPUs de la VM automáticamente
+    cores = cpu_count()
 
     base = simulations // cores
     remainder = simulations % cores
@@ -30,12 +24,8 @@ def run_parallel(values, simulations):
     ]
 
     with Pool(cores) as pool:
-        chunks = pool.map(
-            worker,
-            worker_args
-        )
+        chunks = pool.map(worker, worker_args)
 
-    # 🚨 OPTIMIZACIÓN 2: Concatenar arrays de NumPy es instantáneo en memoria C
     results = np.concatenate(chunks)
 
     return {
