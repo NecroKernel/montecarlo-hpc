@@ -21,6 +21,9 @@ services:
         args:
           - VITE_API_URL=${VITE_API_URL}
 
+      env_file:
+        - ../apps/frontend/.env
+
       ports:
         - "3000:4173"  
 
