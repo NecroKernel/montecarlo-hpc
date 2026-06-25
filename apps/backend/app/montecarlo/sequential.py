@@ -1,16 +1,17 @@
 import numpy as np
 
-from .core import simulate
+from .core import simulate, summarize
+
 
 def run_sequential(values, simulations):
+    """Baseline secuencial: una muestra a la vez en un único proceso.
 
-    results = []
+    Representa el enfoque "ingenuo". Sirve como punto de comparación contra
+    la versión paralela para calcular el speedup.
+    """
+    results = np.empty(simulations, dtype=float)
 
-    for _ in range(simulations):
-        results.append(simulate(values))
+    for i in range(simulations):
+        results[i] = simulate(values)
 
-    return {
-        "mean": float(np.mean(results)),
-        "p95": float(np.percentile(results, 95)),
-        "max": float(np.max(results))
-    }
+    return summarize(results)

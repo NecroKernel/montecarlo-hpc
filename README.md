@@ -10,14 +10,13 @@ El proyecto está organizado de la siguiente manera basado en una arquitectura o
 ├── apps
 │   ├── backend
 │   │   ├── app
-│   │   │   └── api
-│   │   │       └── main.py          # Endpoints de FastAPI y lógica de orquestación
-│   │   ├── montecarlo
-│   │   │   ├── core.py             # Motor matemático base del simulador
-│   │   │   ├── metrics.py          # Cálculo de velocidad de procesamiento y speedup
-│   │   │   ├── parallel.py         # Orquestación con multiprocessing (Pool mapping)
-│   │   │   ├── preprocessing.py    # Transformaciones y pipelines de datos de entrada
-│   │   │   └── sequential.py       # Procesamiento lineal en un único hilo
+│   │   │   ├── main.py             # Endpoints de FastAPI y lógica de orquestación
+│   │   │   └── montecarlo
+│   │   │       ├── core.py         # Motor base: muestreo y resumen estadístico
+│   │   │       ├── metrics.py      # Benchmark de tiempos de ejecución
+│   │   │       ├── parallel.py     # Paralelización por lotes (multiprocessing.Pool)
+│   │   │       ├── preprocessing.py # Carga/filtrado del CSV (cacheado en memoria)
+│   │   │       └── sequential.py   # Procesamiento lineal en un único proceso
 │   │   ├── Dockerfile
 │   │   └── requirements.txt        # Dependencias backend (FastAPI, NumPy, Uvicorn)
 │   └── frontend
@@ -35,3 +34,65 @@ El proyecto está organizado de la siguiente manera basado en una arquitectura o
 └── infra
     ├── docker-compose.yml          # Orquestación global de contenedores en red interna
     └── nginx                       # Configuración opcional para proxy inverso
+```
+
+## 🏗️ Arquitectura
+
+| Capa | Tecnología | Rol |
+|------|-----------|-----|
+| Frontend | React 18 + Vite | Dashboard interactivo (selector de fechas y nº de simulaciones) |
+| Backend | FastAPI + Uvicorn | API REST que orquesta el pipeline |
+| Cómputo | `multiprocessing` + NumPy | Simulación Monte Carlo secuencial vs. paralela por lotes |
+| Datos | pandas + CSV (SENAMHI) | Carga y filtrado (cacheado en memoria) |
+| Infra | Docker + Azure VM | Contenedores y despliegue en la nube |
+
+> **Nota sobre el modelo:** la simulación usa *remuestreo bootstrap* de los valores
+> históricos observados (PM10) para estimar la distribución de concentraciones y la
+> probabilidad de superar el umbral de alerta de la OMS (100 µg/m³). No es un modelo
+> físico de dispersión atmosférica.
+
+## ▶️ Cómo ejecutar
+
+### Con Docker (recomendado)
+
+```bash
+cd infra
+docker compose up --build
+# Frontend: http://localhost:3000   |   Backend: http://localhost:8000/docs
+```
+
+### En local (sin Docker)
+
+**Backend**
+
+```bash
+cd apps/backend
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+# Apunta al CSV local (fuera de Docker):
+export DATA_PATH=../../data/contaminantes_lima.csv   # Windows: set DATA_PATH=...
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+**Frontend**
+
+```bash
+cd apps/frontend
+npm install
+# Opcional: apuntar a un backend distinto a localhost:8000
+echo "VITE_BACKEND_URL=http://localhost:8000" > .env.local
+npm run dev   # http://localhost:4173
+```
+
+## ⚙️ Variables de entorno
+
+| Variable | Servicio | Por defecto | Descripción |
+|----------|----------|-------------|-------------|
+| `DATA_PATH` | backend | `/app/data/contaminantes_lima.csv` | Ruta al CSV de datos |
+| `ALLOWED_ORIGINS` | backend | `*` | Orígenes CORS permitidos (separados por comas) |
+| `VITE_BACKEND_URL` | frontend | `http://localhost:8000` | URL base del backend |
+
+## 📡 API
+
+Ver la especificación completa en [`docs/api_spec.md`](docs/api_spec.md) y la
+documentación interactiva en `http://localhost:8000/docs` (Swagger UI).
