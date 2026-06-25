@@ -32,7 +32,7 @@ class SimulationRequest(BaseModel):
 @app.post("/run-comparison")
 def run_comparison(request: SimulationRequest):
     try:
-        # 1. Obtener los valores filtrados del CSV usando función de preprocessing.py
+        # 1. Obtener los valores filtrados del CSV usando tu función de preprocessing.py
         # Convertimos las fechas a string ya que tu pandas filter hace .astype(str) o comparación limpia
         start_str = request.start_date.strftime("%Y-%m-%d")
         end_str = request.end_date.strftime("%Y-%m-%d")
@@ -45,13 +45,13 @@ def run_comparison(request: SimulationRequest):
         )
         
     except ValueError as val_err:
-        # Captura el raise ValueError("No hay datos para los filtros seleccionados")
+        # Captura el raise ValueError("No hay datos para los filtros seleccionados") de tu código
         raise HTTPException(status_code=400, detail=str(val_err))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al procesar el CSV: {str(e)}")
 
     try:
-        # 2. Correr y tomar tiempos usando función benchmark(func, values, simulations) de metrics.py
+        # 2. Correr y tomar tiempos usando tu función benchmark(func, values, simulations) de metrics.py
         # Simulación Secuencial
         serial_time, sequential_results = benchmark(
             run_sequential, 
@@ -67,14 +67,15 @@ def run_comparison(request: SimulationRequest):
         )
         
         # 3. Calcular el factor de aceleración (Speedup)
+        # Evitamos división por cero por si acaso
         speedup = serial_time / parallel_time if parallel_time > 0 else 1.0
 
         # Retornamos la estructura exacta de JSON que mapea con los campos de tu App.jsx
         return {
             "prediction": {
                 "expected_mean": round(float(parallel_results.get("mean", 0)), 2),
-                "max_value": round(float(parallel_results.get("max", 0)), 2),      
-                "p95_value": round(float(parallel_results.get("p95", 0)), 2),      
+                "max_value": round(float(parallel_results.get("max", 0)), 2),      # Corregido de min_bounds a max_value
+                "p95_value": round(float(parallel_results.get("p95", 0)), 2),      # Nombre claro
                 "station_analyzed": request.station,
                 "pollutant_target": request.pollutant,
                 "total_records_filtered": len(values)

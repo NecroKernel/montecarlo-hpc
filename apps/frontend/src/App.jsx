@@ -1,16 +1,16 @@
 import { useState } from "react";
 
 function App() {
-  // 1. Dynamic Form States (Ajustados al rango real del dataset)
+  // 1. Dynamic Form States
   const [startDate, setStartDate] = useState("2015-01-01");
-  const [endDate, setEndDate] = useState("2020-12-31");
+  const [endDate, setEndDate] = useState("2024-05-31");
   const [simulations, setSimulations] = useState(100000);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  // Target working Azure Public IP
-  const BACKEND_URL = `${import.meta.env.VITE_API_URL}/run-comparison`;
+  // Target your working Azure Public IP
+  const BACKEND_URL = "http://20.114.170.13:8000/run-comparison";
 
   async function execute(e) {
     e.preventDefault(); // Prevent page refresh on form submit
@@ -63,7 +63,7 @@ function App() {
             Monte Carlo HPC Simulator
           </h1>
           <p style={{ color: "#94a3b8", marginTop: "0.5rem", fontSize: "0.95rem" }}>
-            High-Performance Compute Data Pipeline — Bootstrap Stochastic Simulation
+            High-Performance Compute Data Analysis Pipeline
           </p>
         </header>
 
@@ -124,7 +124,7 @@ function App() {
                 transition: "background-color 0.2s"
               }}
             >
-              {loading ? "Distributing Batch Workloads Across CPU Cores..." : "Run Parallel HPC Pipeline ⚡"}
+              {loading ? "Executing Jobs Across Cloud Kernels..." : "Run HPC Computation Pipeline ⚡"}
             </button>
           </form>
         </div>
@@ -141,7 +141,7 @@ function App() {
             
             {/* Performance Matrix Row */}
             <div>
-              <h2 style={{ fontSize: "1.3rem", color: "#f1f5f9", marginBottom: "1rem", fontWeight: "600" }}>HPC Benchmark Performance</h2>
+              <h2 style={{ fontSize: "1.3rem", color: "#f1f5f9", marginBottom: "1rem", fontWeight: "600" }}>Execution Benchmark Performance</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem" }}>
                 
                 <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", padding: "1.25rem", borderRadius: "8px" }}>
@@ -149,7 +149,7 @@ function App() {
                   <div style={{ fontSize: "2rem", fontWeight: "700", color: "#ef4444", margin: "0.5rem 0" }}>
                     {result.performance?.serial_time_seconds || result.performance?.serial || "N/A"}s
                   </div>
-                  <small style={{ color: "#64748b" }}>Single-threaded synchronous run</small>
+                  <small style={{ color: "#64748b" }}>Isolated CPU main thread execution</small>
                 </div>
 
                 <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", padding: "1.25rem", borderRadius: "8px" }}>
@@ -157,24 +157,23 @@ function App() {
                   <div style={{ fontSize: "2rem", fontWeight: "700", color: "#22c55e", margin: "0.5rem 0" }}>
                     {result.performance?.parallel_time_seconds || result.performance?.parallel || "N/A"}s
                   </div>
-                  <small style={{ color: "#64748b" }}>Multi-processing batch workers</small>
+                  <small style={{ color: "#64748b" }}>Parallel execution across multiple cores</small>
                 </div>
 
                 <div style={{ backgroundColor: "#0c4a6e", border: "1px solid #0369a1", padding: "1.25rem", borderRadius: "8px" }}>
-                  <span style={{ fontSize: "0.75rem", color: "#7dd3fc", fontWeight: "700", letterSpacing: "0.05em" }}>SPEEDUP SPEEDUP</span>
+                  <span style={{ fontSize: "0.75rem", color: "#7dd3fc", fontWeight: "700", letterSpacing: "0.05em" }}>SPEED UP</span>
                   <div style={{ fontSize: "2.25rem", fontWeight: "800", color: "#38bdf8", margin: "0.25rem 0" }}>
                     {result.performance?.speedup_factor || result.performance?.speedup || "N/A"}x
                   </div>
-                  <span style={{ fontSize: "0.8rem", color: "#7dd3fc" }}>Execution acceleration</span>
+                  <span style={{ fontSize: "0.8rem", color: "#7dd3fc" }}>Reduction in execution</span>
                 </div>
 
               </div>
             </div>
-
             {/* Predictions Content Block */}
             <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", padding: "1.5rem" }}>
               <h2 style={{ fontSize: "1.3rem", color: "#f1f5f9", margin: "0 0 1.25rem 0", fontWeight: "600", borderBottom: "1px solid #334155", paddingBottom: "0.5rem" }}>
-                Stochastic Projections ({result.prediction?.station_analyzed} - {result.prediction?.pollutant_target})
+                Target Projections ({result.prediction?.station_analyzed} - {result.prediction?.pollutant_target})
               </h2>
               
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem" }}>
@@ -183,7 +182,6 @@ function App() {
                   <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#38bdf8", marginTop: "0.25rem" }}>
                     {result.prediction?.expected_mean} ug/m³
                   </div>
-                  <small style={{ color: "#64748b", display: "block", marginTop: "0.25rem" }}>Resampled average concentration</small>
                 </div>
 
                 <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
@@ -191,7 +189,6 @@ function App() {
                   <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#fbbf24", marginTop: "0.25rem" }}>
                     {result.prediction?.p95_value} ug/m³
                   </div>
-                  <small style={{ color: "#64748b", display: "block", marginTop: "0.25rem" }}>Environmental alert threshold risk</small>
                 </div>
 
                 <div style={{ backgroundColor: "#0f172a", padding: "1rem", borderRadius: "6px", border: "1px solid #1e293b" }}>
@@ -199,7 +196,6 @@ function App() {
                   <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#f87171", marginTop: "0.25rem" }}>
                     {result.prediction?.max_value} ug/m³
                   </div>
-                  <small style={{ color: "#64748b", display: "block", marginTop: "0.25rem" }}>Maximum simulated exposure peak</small>
                 </div>
               </div>
             </div>
